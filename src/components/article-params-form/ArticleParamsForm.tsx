@@ -2,7 +2,7 @@ import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
-import { FormEvent } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { Select } from 'src/ui/select';
 import { Separator } from 'src/ui/separator';
 import { RadioGroup } from 'src/ui/radio-group/RadioGroup';
@@ -10,19 +10,16 @@ import {
 	ArticleStateType,
 	backgroundColors,
 	contentWidthArr,
+	defaultArticleState,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
 	OptionType,
 } from 'src/constants/articleProps';
+import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
 
 interface ParamsProps {
-	isOpen: boolean;
-	onClick: () => void;
-	form: ArticleStateType;
-	setForm: any;
-	onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-	onReset: () => void;
+	setPageStyle: (pageStyle: ArticleStateType) => void;
 }
 const headingStyles = {
 	fontFamily: 'var(--font-family, "Open Sans")',
@@ -34,40 +31,49 @@ const headingStyles = {
 	marginBlockEnd: '50px',
 } as React.CSSProperties;
 
-export const ArticleParamsForm = ({
-	isOpen,
-	onClick,
-	form,
-	setForm,
-	onSubmit,
-	onReset,
-}: ParamsProps) => {
-	const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		onSubmit(e);
-	};
+export const ArticleParamsForm = ({ setPageStyle }: ParamsProps) => {
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [form, setForm] = useState(defaultArticleState);
+	const articleRef = useRef<HTMLDivElement>(null);
 
-	const handleReset = () => {
-		onReset();
-	};
+	useOutsideClickClose({
+		isOpen: isMenuOpen,
+		onChange: setIsMenuOpen,
+		rootRef: articleRef,
+	});
+
+	function handleReset() {
+		setPageStyle(defaultArticleState);
+		setForm(defaultArticleState);
+	}
+
+	function handleSubmit(e: FormEvent) {
+		e.preventDefault();
+		setPageStyle(form);
+	}
 
 	function handleChange(key: keyof typeof form) {
 		return function (value: OptionType) {
-			setForm((prev: Object) => ({
+			setForm((prev) => ({
 				...prev,
 				[key]: value,
 			}));
 		};
 	}
 
+	function handleClick() {
+		setIsMenuOpen((prev) => !prev);
+	}
+
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={onClick} />
+			<ArrowButton isOpen={isMenuOpen} onClick={handleClick} />
 			<aside
-				className={clsx(styles.container, isOpen && styles.container_open)}>
+				ref={articleRef}
+				className={clsx(styles.container, isMenuOpen && styles.container_open)}>
 				<form
 					className={styles.form}
-					onSubmit={handleFormSubmit}
+					onSubmit={handleSubmit}
 					onReset={handleReset}>
 					<h2 style={headingStyles}>Задайте параметры</h2>
 					<section className={styles.settingsSection}>
