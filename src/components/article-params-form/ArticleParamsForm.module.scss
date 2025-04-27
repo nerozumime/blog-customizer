@@ -30,3 +30,21 @@
 	justify-content: space-between;
 	margin-top: auto;
 }
+
+.settingsSection {
+	display: flex;
+	flex-direction: column;
+	gap: 50px;
+	justify-content: flex-start;
+	margin-bottom: 207px;
+}
+
+.heading {
+	font-family: var(--font-family, 'Open Sans');
+	font-weight: 800px;
+	font-size: 31px;
+	text-transform: uppercase;
+	text-align: left;
+	color: #000;
+	margin-block-end: 50px;
+}
